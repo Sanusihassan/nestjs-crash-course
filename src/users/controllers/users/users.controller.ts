@@ -1,13 +1,14 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Param, ParseBoolPipe, ParseIntPipe, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { createUserDTO } from 'src/users/dtos/creaetUser.dto';
+import { ValidateCreateUserPipe } from 'src/users/pipes/validate-create-user/validate-create-user.pipe';
 import { UsersService } from 'src/users/services/users/users.service';
 
 @Controller('users')
 export class UsersController {
-    constructor(private userService: UsersService) {}
+    constructor(private userService: UsersService) { }
 
     public users = this.userService.fetchUsers();
-    
+
 
     private userPosts = {
         1: [{ id: 1, title: 'Post 1' }, { id: 2, title: 'Post 2' }],
@@ -33,7 +34,7 @@ export class UsersController {
     }
     @Post()
     @UsePipes(new ValidationPipe())
-    createUser(@Body() user: createUserDTO) {
+    createUser(@Body(ValidateCreateUserPipe) user: createUserDTO) {
         this.userService.createUser(user);
         return user;
     }
@@ -41,7 +42,7 @@ export class UsersController {
     getUserById(@Param("id", ParseIntPipe) id: number) {
         const user = this.userService.fetchUserById(id);
         console.log(user)
-        if(!user)
+        if (!user)
             throw new HttpException("user not found", HttpStatus.BAD_REQUEST)
         return user;
     }
